@@ -1,0 +1,51 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden; /* Prevent scrolling */
+}
+
+
+input[type="radio"] {
+    display: none;
+}
+
+/* Style the label to look like a button */
+.radio_label {
+    display: inline-block;
+    padding: 5px 15px;
+    background-color: white;
+    color: rgb(1, 1, 1);
+    border:2px solid gray;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    user-select: none;
+    transition: background-color 0.3s ease;
+}
+
+/* Change the button style when the radio is checked */
+input[type="radio"]:checked+label {
+    background-color: #54bb6e;
+    color: white;
+    border: 2px solid black;
+}
+
+/* Optional: Add hover effect */
+.radio_label:hover {
+    background-color: #fcfcfc;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+}
+
+.time-slots {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.slot_disable{
+    background-color: grey;
+    color: white;
+    pointer-events: none;
+}
