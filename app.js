@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-
+const path = require('path');
 const sequelize = require('./database/db');
 
 
@@ -9,10 +9,11 @@ const sequelize = require('./database/db');
 
 
 const DayAvailability = require('./models/dayAvailability')
-const EmployeeRole =  require('./models/employeeRole');
+
 const Services = require('./models/servicesCatagories');
 const BookAppointment = require('./models/bookingAppointment');
 const User = require('./models/userModel')
+const Admin  =  require('./models/admin')
 
 
 
@@ -20,31 +21,38 @@ const User = require('./models/userModel')
 
 const routesBooking = require('./routes/routesBooking'); // Assuming routes are in a separate file
 const authRoutes = require('./routes/authRoutes');
-const { bookingAppointment } = require('./controllers/bookingController');
-
+// const { bookingAppointment } = require('./controllers/bookingController');
+const employeeRoutes  = require("./routes/employeeRoutes")
+const ServiceRoutes = require("./routes/serviceRoutes")
 
 const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/api', authRoutes);
+app.use('/api',employeeRoutes)
 
-app.use('/api', routesBooking); // Mount routes under the '/api' prefix
+app.use('/api', routesBooking); 
+app.use('/api', ServiceRoutes)
+
 
 
 User.hasMany(BookAppointment)
 BookAppointment.belongsTo(User)
 
-EmployeeRole.hasMany(BookAppointment)
-BookAppointment.belongsTo(EmployeeRole)
+Admin.hasMany(BookAppointment)
+BookAppointment.belongsTo(Admin)
 
-EmployeeRole.hasMany(DayAvailability)
-DayAvailability.belongsTo(EmployeeRole)
+Admin.hasMany(DayAvailability)
+DayAvailability.belongsTo(Admin)
 
 
 
+app.use('/admin', express.static(path.join(__dirname, 'public', 'admin')));
+app.use('/customer', express.static(path.join(__dirname, 'public', 'customer')));
 
 
 sequelize

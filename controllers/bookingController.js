@@ -1,85 +1,234 @@
-const DayAvailability = require('../models/dayAvailability') 
-const EmployeeRole = require('../models/employeeRole')
-const BookAppointment = require('../models/bookingAppointment')
+const DayAvailability = require("../models/dayAvailability");
+const BookAppointment = require("../models/bookingAppointment");
+const Admin =  require("../models/admin")
+const User =  require("../models/userModel")
+const { Op, DATE } = require("sequelize");
+const { compareSync } = require("bcrypt");
 
+module.exports.bookingAppointment = async (req, res) => {
 
-module.exports.fetchAvailability = async (req, res) => {
-   try {
-    const { date, service } = req.query;
+  const { date, time, services, adminID } = req.body;
 
-    const employeeData = await EmployeeRole.findAll({where:{specialist: service}})
+  const user = req.user;
 
-    console.log(employeeData[0].employeeName)
-
-    const search = employeeData[0].ID
-
-    const result = await DayAvailability.findOne({where:{employeeRoleID:search , date:date}})
-
-    if(result){
-        res.json(result)
-    }else{
-        const create = await DayAvailability.create({date:date, employeeRoleID:search})
-        res.json(create)
-    }
-
-   } catch (error) {
-    console.log(error)
-   }
-}
-module.exports.bookingAppointment = async(req, res)=>{
-
-
-
-const { date, time, services, employeeRoleID } = req.body; // Extracting necessary data from the request body
-
-const  user = req.user
-console.log(user)
-
-try {
-    // Step 1: Create the booking in the BookAppointment table
+  try {
     const bookingData = {
-        date,
-        services,
-        time,
-        employeeRoleID,
-        userID:user.ID
-        // status: "Booked"  // You can set this based on your system's requirements
+      date,
+      services,
+      time,
+      adminID,
+      userID: user.ID,
     };
 
     const result = await BookAppointment.create(bookingData);
-    console.log("Booking Created:", result);
 
-    // Step 2: Update the DayAvailability for the selected employee and date
-    const availability = await DayAvailability.findOne({ where: { employeeRoleID, date: date } });
+    const availability = await DayAvailability.findOne({
+      where: { adminID, date: date },
+    });
 
     if (availability) {
-        // Step 3: If availability found, we proceed to update the time slot
+      const updatedAvailability = availability.availability;
 
-        // Parse the availability JSON object
-        const updatedAvailability = availability.availability; // Assuming availability is a JSON column
+      if (updatedAvailability[time] !== undefined) {
+        updatedAvailability[time] = false;
+      }
 
-        // Step 4: Set the selected time slot to false (indicating booked)
-        if (updatedAvailability[time] !== undefined) {
-            updatedAvailability[time] = false;  // Mark the time slot as unavailable
-        }
+      await DayAvailability.update(
+        { availability: updatedAvailability }, // Update only the availability field
+        { where: { adminID, date: date } }
+      );
 
-        // Step 5: Save the updated availability back to the database
-        await DayAvailability.update(
-            { availability: updatedAvailability }, // Update only the availability field
-            { where: { employeeRoleID, date: date } }
-        );
-
-        console.log("Availability Updated:", updatedAvailability);
+      console.log("Availability Updated:", updatedAvailability);
     } else {
-        console.log("No availability found for this employee and date");
+      console.log("No availability found for this employee and date");
     }
 
     // Return success response
-    res.status(201).json({ message: "Booking created and availability updated successfully", booking: result });
-} catch (error) {
+    res
+      .status(201)
+      .json({
+        message: "Appointment confirmed",
+        booking: result,
+      });
+  } catch (error) {
     console.log("Error:", error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports.readBookings = async (req, res) => {
+  try {
+    const user = req.user.ID;
+
+    const result = await BookAppointment.findAll({ where: { userID: user } });
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Fetching Bookings Successfully",
+        message: result,
+      });
+  } catch (err) {
+    console.log(err);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error : readBookings",
+      });
+  }
+};
+
+module.exports.UpdateBookings = async (req, res) => {
+  try {
+    const user = req.user.ID;
+    const data = req.body;
+    const BookingID = req.query.ID; //ID update
+
+    const result = await BookAppointment.update(data, {
+      where: { ID: data.ID },
+    });
+
+    //once update or reschedule , the change should be in  availability
+
+    res
+      .status(200)
+      .json({ success: true, message: "Booking updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ success: false, message: "Error updating BookAppointment" });
+  }
+};
+
+module.exports.FetchAllBookings = async (req, res) => {
+  try {
+    const data = req.params.status;
+    const result = await BookAppointment.findAll({ where: { status: data } });
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Fetching all Bookings",
+        content: result,
+      });
+  } catch (error) {
+    console.log(error);
+    json
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error: FetchAllBookings",
+      });
+  }
+};
+
+module.exports.FetchUserBooking = async (req, res) => {
+  try {
+    const ID = req.user.ID;
+
+    const Todaydate = req.query.date;
+
+    const current = await BookAppointment.findAll({
+      where: {
+        date: {
+          [Op.gte]: Todaydate, // This ensures dates greater than or equal to Todaydate
+        },
+        userID: ID, // Replace `ID` with the appropriate user ID variable
+      },
+    });
+
+    console.log(current);
+
+    const past = await BookAppointment.findAll({
+      where: {
+        date: {
+          [Op.lt]: Todaydate, // This ensures dates greater than or equal to Todaydate
+        },
+        userID: ID, // Replace `ID` with the appropriate user ID variable
+      },
+    });
+
+    res
+      .status(201)
+      .json({
+        success: true,
+        message: "fetched successfully",
+        past: past,
+        current: current,
+      });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error: FetchUserBooking",
+      });
+  }
+};
+
+
+module.exports.DateAppointments = async(req,res)=>{
+    try{
+      const data = req.query.date
+      // console.log(typeof(data.date))
+      const result = await BookAppointment.findAll({
+        where: {
+          date: data
+        },
+        include: [
+          {
+            model: Admin,
+            attributes: ['name']
+          },
+          {
+            model: User,
+            attributes: ['userName']
+          }
+        ]
+      });
+      // console.log(result)
+        res.status(200).json({success: true, message:"appointment successfully fetched",content : result})
+    }catch(err){
+        console.log(err);
+        res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error: DateAppointments",
+      });
+    }
 }
+
+
+
+
+
+module.exports.statusUpdater = async (req,res)=>{
+
+  try {
+    
+    const status = req.body.params.status;
+    const ID = req.params.id;
+    
+    const result = await BookAppointment.update({status : status},{where:{ID:ID}})
+
+    res.status(201).json({success : true,message : "successfully updated",data : result})
+    
+  } catch (error) {
+    console.log(error)
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error: statusUpdater",
+      });
+  }
+
 
 
 }

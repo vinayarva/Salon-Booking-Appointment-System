@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
         "authcontroller",
-        "bulkcreate"
+        "bulkcreate",
+        "Todaydate"
+    ],
+    "cSpell.ignoreWords": [
+        "availabilty",
+        "speciality"
     ]
 }

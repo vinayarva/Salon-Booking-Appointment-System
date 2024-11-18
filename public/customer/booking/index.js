@@ -1,6 +1,12 @@
 const hiddenEmployeeName = document.getElementById("hiddenEmployeeName");
 
 // Handle form submission
+
+
+document.getElementById("signout").addEventListener("click",()=>{
+    window.location.href = "../login/login.html"
+})
+
 function submitBooking(event) {
   event.preventDefault(); // Prevent the default form submission
 
@@ -10,7 +16,7 @@ function submitBooking(event) {
     date: event.target.date.value,
     services: event.target.service.value,
     time: timeSlot.value,
-    employeeRoleID: hiddenEmployeeName.value
+    adminID: hiddenEmployeeName.value
   };
 
   console.log(booking);
@@ -19,12 +25,10 @@ function submitBooking(event) {
     Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace `token` with your actual token variable
 
   }}).then((result) => {
-   
-      console.log(result)
-      event.target.reset(); 
-      
 
-      dateInput.value = formattedDate
+
+    alert(result.data.message)
+    window.location.href = "../appointments/appointments.html"
 
 
   }).catch((err) => {
@@ -40,9 +44,9 @@ const dateInput = document.getElementById("date");
 // Get today's date
 const today = new Date();
 const formattedDate = today.toISOString().split("T")[0]; // Formats as 'YYYY-MM-DD'
-
 // Set the value of the date input to today's date
 dateInput.value = formattedDate;
+dateInput.min = formattedDate
 const serviceInput = document.getElementById("service");
 
 // Common event handler function
@@ -66,7 +70,7 @@ async function handleInputChange() {
     );
     
 
-    hiddenEmployeeName.value = result.data.employeeRoleID;
+    hiddenEmployeeName.value = result.data.adminID;
 
     console.log(hiddenEmployeeName.value)
     console.log(result);
@@ -133,3 +137,72 @@ function convertTo12HourFormat(time24) {
 
   return `${hours}:${minutes} ${period}`;
 }
+
+
+
+
+function getAuthHeaders() {
+  return {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  };
+}
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    updateService()
+  } catch (error) {
+    console.error("Error fetching services:", error);
+    alert("Failed to load services. Please try again later.");
+  }
+});
+
+// Display service cards
+function displayCard(data) {
+  if (data.length === 0) return null;
+
+  const cards_slots = document.getElementById("cards-slots");
+  cards_slots.innerHTML = "";
+
+  data.forEach((element) => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div class="mx-2 my-2">
+        <div class="card" style="width: 12rem;height:16rem">
+          <div class="card-body">
+            <h5 class="card-title">${element.serviceName}</h5>
+            <p class="card-text">${element.serviceDescription}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    cards_slots.appendChild(div);
+  })
+
+  const Select = document.getElementById("service")
+
+  data.forEach((element) => {
+    const option = document.createElement("option");
+    option.value = element.serviceName
+    option.innerText = element.serviceName
+
+    Select.appendChild(option)
+  })
+
+
+}
+
+
+function updateService(){
+
+  axios.get("http://localhost:4000/api/getService", getAuthHeaders()).then((result)=>{
+
+    displayCard(result.data.content);
+
+  }).catch((err)=>{console.log(err)});
+
+
+}
+

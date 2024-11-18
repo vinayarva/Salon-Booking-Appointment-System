@@ -20,7 +20,7 @@ const DayAvailability = sequelize.define('DayAvailability', {
       "10:00": true,
       "11:00": true,
       "12:00": true,
-      "13:00": true,
+      "13:00": false,
       "14:00": true,
       "15:00": true,
       "16:00": true,

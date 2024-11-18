@@ -1,19 +1,16 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../database/db'); // Adjust path as needed
+const sequelize = require('../database/db'); 
 
 const Services = sequelize.define('services', {
   ID: {
-    type: DataTypes.INTEGER, // Can be UUID if preferred
+    type: DataTypes.INTEGER,
     primaryKey: true,
     autoIncrement: true
   },
-  services: {
-    type: DataTypes.STRING,
-    allowNull: false
-  }
-}, {
-  timestamps: true, // Adds `createdAt` and `updatedAt` fields
-  tableName: 'services'
+  serviceName: {type: DataTypes.STRING},
+  serviceDescription : {type: DataTypes.TEXT},
+  price: {type: DataTypes.INTEGER},
+  imageLink : {type: DataTypes.TEXT}
 });
 
 module.exports = Services;
