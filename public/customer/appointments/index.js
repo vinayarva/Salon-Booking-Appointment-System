@@ -1,3 +1,5 @@
+// const { compareSync } = require("bcrypt");
+
 const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
 
 
@@ -35,12 +37,50 @@ document.addEventListener('DOMContentLoaded', async (event) => {
 })
 
 
+async function updater(){
+
+    try {
+
+        const result = await axios.get("http://localhost:4000/api/fetchBookings", {
+            params: {
+              date: today 
+            },
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}` 
+            }
+          })
+            console.log(result)
+        const current = result.data.current
+        const past = result.data.past
+    
+        if(current.length > 0){
+            displayCurrent(current)
+        }
+    
+        if(past.length > 0){
+            displayPast(past)
+        }
+
+
+        
+    } catch (error) {
+        console.log(error)
+    }
+
+  
+
+}
+
+
 function displayCurrent(data){
+
+    const  filterData =  data.filter(obj => obj.status !== "cancelled")
+    console.log(filterData)
 
     const current = document.getElementById("Current_appointments")
     current.innerHTML = ""
     
-    data.forEach(element => {
+    filterData.forEach(element => {
         const div =  document.createElement('div')
 
         div.innerHTML = `
@@ -57,7 +97,9 @@ function displayCurrent(data){
                 <h5>${element.services}</h5>
             </div
             <div class="d-flex flex-column flex-md-row">
-                <button class="btn btn-success mb-2 mb-md-0 me-0 me-md-2 reschedule_btn" id="${element.ID} date="${element.date}" time="${element.time}">Reschedule</button>
+             <button type="button" class="btn btn-success" data-bs-toggle="modal" id="Reschedule" value="${element.ID}" data-bs-target="#exampleModal">
+                                                        Reschedule
+            </button>
                 <button class="btn btn-danger cancel_btn" id="${element.ID}">Cancel</button>
             </div>
         </div>
@@ -67,24 +109,25 @@ function displayCurrent(data){
           current.appendChild(div)
     });
 
-    // document.querySelectorAll(".reschedule_btn").forEach(async (element) => {
-    //   try {
-    //     const ID = element.id;
-    //     const Date  = element.date
-    //     const time = element.time
-
-    //     const reschedule_date = document.getElementById("reschedule_date")
-    //     const reschedule_time =  document.getElementById("reschedule_time")
-    //     reschedule_date.value = Date
-    //     reschedule_date.time
-        
-        
-
-
-    //   } catch (error) {
-    //     console.log(error);
-    //   }
-    // });
+    
+    document.querySelectorAll(".cancel_btn").forEach((button)=>{
+        button.addEventListener("click",(event)=>{
+           
+            axios.put(`http://localhost:4000/api/admin/appointmentStatus/${event.target.id}`, {
+                params: { status: "cancelled" },
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`
+                  }
+            })
+            .then((result) => {
+                
+                updater()
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+        })
+     })
 
 }
 
@@ -109,8 +152,8 @@ function displayPast(data){
              <div class="mb-2 mb-md-0 text-center">
                 <h4> ${element.services}</h4>
             </div>
-            <div class="d-flex flex-column flex-md-row">
-                <button class="btn mb-2 mb-md-0 me-0 me-md-2 status_btn" style="background-color: green"; color: white;pointer-events: none" id="${element.ID}>completed</button>
+            <div>
+                <h3>${element.status}<h3>
             </div>
         </div>
     </div>  

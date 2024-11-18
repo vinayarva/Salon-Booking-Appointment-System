@@ -2,6 +2,10 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const path = require('path');
+
+require('dotenv').config();
+
+
 const sequelize = require('./database/db');
 
 
@@ -17,7 +21,7 @@ const Admin  =  require('./models/admin')
 
 
 
-
+const startCronJobs =  require("./jobs/crons")
 
 const routesBooking = require('./routes/routesBooking'); // Assuming routes are in a separate file
 const authRoutes = require('./routes/authRoutes');
@@ -26,6 +30,9 @@ const employeeRoutes  = require("./routes/employeeRoutes")
 const ServiceRoutes = require("./routes/serviceRoutes")
 
 const app = express();
+
+startCronJobs.startCronJobs()
+startCronJobs.startCronJobs2();
 
 app.use(cors());
 app.use(bodyParser.json());

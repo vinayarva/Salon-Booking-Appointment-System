@@ -7,37 +7,6 @@ document.getElementById("signout").addEventListener("click",()=>{
     window.location.href = "../login/login.html"
 })
 
-function submitBooking(event) {
-  event.preventDefault(); // Prevent the default form submission
-
-  const timeSlot = event.target.querySelector('input[name="group"]:checked');
-
-  const booking = {
-    date: event.target.date.value,
-    services: event.target.service.value,
-    time: timeSlot.value,
-    adminID: hiddenEmployeeName.value
-  };
-
-  console.log(booking);
-
-  axios.post("http://localhost:4000/api/booking", booking, {headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace `token` with your actual token variable
-
-  }}).then((result) => {
-
-
-    alert(result.data.message)
-    window.location.href = "../appointments/appointments.html"
-
-
-  }).catch((err) => {
-      console.log(err)
-  });
-
-
-}
-
 // Get the date and select elements
 const dateInput = document.getElementById("date");
 
@@ -46,7 +15,13 @@ const today = new Date();
 const formattedDate = today.toISOString().split("T")[0]; // Formats as 'YYYY-MM-DD'
 // Set the value of the date input to today's date
 dateInput.value = formattedDate;
-dateInput.min = formattedDate
+dateInput.min = formattedDate;
+
+const oneWeekLater = new Date();
+oneWeekLater.setDate(today.getDate() + 7);
+const final = oneWeekLater.toISOString().split("T")[0];
+
+dateInput.max = final
 const serviceInput = document.getElementById("service");
 
 // Common event handler function
@@ -187,18 +162,31 @@ function displayCard(data) {
     const option = document.createElement("option");
     option.value = element.serviceName
     option.innerText = element.serviceName
+    option.setAttribute('data-price', element.price);
 
     Select.appendChild(option)
   })
+
+  Select.addEventListener('change', function() {
+    const selectedOption = Select.options[Select.selectedIndex]; // Get the selected option
+    const price = selectedOption.getAttribute('data-price'); // Retrieve the price
+    const price_text = document.getElementById("price-text")
+    price_text.innerText = "Price: " + price 
+    document.getElementById("hiddenprice").value = price
+    console.log(price); // Display the price in the console (or use it as needed)
+  });
 
 
 }
 
 
+
+
+
 function updateService(){
 
   axios.get("http://localhost:4000/api/getService", getAuthHeaders()).then((result)=>{
-
+    console.log(result)
     displayCard(result.data.content);
 
   }).catch((err)=>{console.log(err)});
@@ -206,3 +194,96 @@ function updateService(){
 
 }
 
+
+
+
+
+
+document.getElementById("purchase").addEventListener("click", async (e) => {
+  try {
+    e.preventDefault(); // Prevent form submission initially
+
+    // Get the price from the hidden input field
+    const price = document.getElementById("hiddenprice").value; // Get the price value
+    const formattedPrice = price * 100; // Razorpay expects the amount in paise (1 INR = 100 paise)
+    console.log(formattedPrice)
+    // Open the payment gateway first
+    const response = await axios.get(`http://localhost:4000/api/service/premium?price=${formattedPrice}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+    const order_id = response.data.id;
+
+    const options = {
+      key: "rzp_test_m2xurDMBsJulme", // Replace with your Razorpay key ID
+      amount: formattedPrice, // Amount should be in paise (100 paise = 1 INR)
+      currency: "INR",
+      name: "Salon Service Payment",
+      description: "Service Payment",
+      order_id: order_id,
+      handler: async (paymentResponse) => {
+        try {
+          // Handle the payment success response here
+          // Send the payment details back to the server for verification
+          const result = await axios.post(
+            "http://localhost:4000/api/service/verify",
+            paymentResponse,
+            {
+              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+            }
+          );
+
+
+          // After successful payment, submit the booking form
+          submitBooking(paymentResponse); // Call the submitBooking function after payment success
+
+        } catch (error) {
+          console.log("Payment verification failed:", error);
+        }
+      },
+      prefill: {
+        name: "Mark Anthony", // Prefill user's name
+        email: "user@example.com", // Prefill user's email
+        contact: "9999999999", // Prefill user's contact number
+      },
+      theme: {
+        color: "#3399cc",
+      },
+    };
+
+    const paymentWindow = new Razorpay(options);
+    paymentWindow.open();
+
+  } catch (error) {
+    console.log("Error opening payment gateway:", error);
+  }
+});
+
+// Modified submitBooking function
+function submitBooking(paymentResponse) {
+  // Prevent the default form submission
+  const timeSlot = document.querySelector('input[name="group"]:checked');
+  const booking = {
+    date: document.getElementById("date").value,
+    services: document.getElementById("service").value,
+    time: timeSlot ? timeSlot.value : "", // Ensure time slot exists
+    adminID: document.getElementById("hiddenEmployeeName").value,
+    // paymentResponse: paymentResponse, // Attach the payment response to the booking
+    // price: document.getElementById("hiddenprice").value // Add the price to the booking object
+  };
+
+  console.log(booking);
+
+  // Send the booking data (including payment details) to your server
+  axios.post("http://localhost:4000/api/booking", booking, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`, // Add the token for authentication
+    },
+  })
+    .then((result) => {
+      alert(result.data.message); // Show success message
+      window.location.href = "../appointments/appointments.html"; // Redirect after successful booking
+    })
+    .catch((err) => {
+      console.log("Booking failed:", err); // Handle any booking errors
+    });
+}

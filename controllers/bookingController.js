@@ -4,6 +4,7 @@ const Admin =  require("../models/admin")
 const User =  require("../models/userModel")
 const { Op, DATE } = require("sequelize");
 const { compareSync } = require("bcrypt");
+const SendEmail = require("../services/email")
 
 module.exports.bookingAppointment = async (req, res) => {
 
@@ -38,16 +39,18 @@ module.exports.bookingAppointment = async (req, res) => {
         { where: { adminID, date: date } }
       );
 
-      console.log("Availability Updated:", updatedAvailability);
+      // console.log("Availability Updated:", updatedAvailability);
     } else {
-      console.log("No availability found for this employee and date");
+      // console.log("No availability found for this employee and date");
     }
 
     // Return success response
+
+    SendEmail("test@example.com",result.time,result.date)
     res
       .status(201)
       .json({
-        message: "Appointment confirmed",
+        message: "Appointment confirmed,Confirmation Email is send to Email",
         booking: result,
       });
   } catch (error) {

@@ -2,6 +2,7 @@ const express = require('express')
 const BookingController = require("../controllers/bookingController")
 const { Authenticate } = require('../middleware/authentication')
 const AvailabilityController =  require("../controllers/availabiltyController")
+const paymentController = require('../controllers/purchaseController')
 
 
 
@@ -22,6 +23,12 @@ Routes.post('/booking',Authenticate,BookingController.bookingAppointment)
 Routes.get("/fetchBookings",Authenticate,BookingController.FetchUserBooking)
 Routes.get("/admin/getappointment",Authenticate,BookingController.DateAppointments)
 Routes.put("/admin/appointmentStatus/:id",BookingController.statusUpdater)
+
+
+
+Routes.get("/service/premium",Authenticate,paymentController.premiumPurchase)
+
+Routes.post("/service/verify",Authenticate,paymentController.verify)
 
 
 
