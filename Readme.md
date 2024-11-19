@@ -1,32 +1,38 @@
 # Salon Appointment Booking System - API Documentation
 
-The **Salon Appointment Booking System** is designed to streamline the management of salon services, appointments, staff, and availability. The system includes features for customers, staff, and administrators to handle bookings, manage availability, track service offerings, and process payments efficiently. This API enables seamless integration with front-end applications or third-party tools to enhance the user experience for salon operations.
+The **Salon Appointment Booking System** is designed to simplify salon operations by providing efficient management of services, appointments, availability, and user roles. This API ensures seamless booking, service management, and communication with integrated email notifications for critical updates.
 
 ### Key Features:
 1. **User Management:**
-   - Securely manage users with authentication and role-based access.
-   - Support for admin, staff, and customer roles.
+   - Authentication and role-based access control for admins, staff, and customers.
+   - User profile management.
 
 2. **Service Management:**
    - CRUD operations for salon services.
-   - Dynamic service pricing and descriptions.
+   - Support for dynamic pricing and detailed descriptions.
 
 3. **Appointment Booking:**
-   - Allow customers to book appointments.
-   - Admins and staff can view and update appointment statuses.
+   - Book, fetch, and update appointments for customers.
+   - Admin and staff tools for managing appointment statuses.
 
 4. **Availability Management:**
-   - Real-time availability updates.
-   - Automated time-slot management to prevent overbooking.
+   - Real-time availability updates and time-slot management.
+   - Prevents overbooking with intelligent time-slot allocation.
 
 5. **Payment Integration:**
-   - Premium services purchase and payment verification.
+   - Payment processing for  services.
+   - Payment verification support.
 
-6. **Admin Dashboard:**
+6. **Email Notifications:**
+   - Automated email notifications for:
+     - **Appointment Confirmation**: Sent when a booking is made.
+     - **Appointment Updates**: Sent for changes in status (e.g., confirmed, canceled).
+
+7. **Admin Dashboard:**
    - Overview of all appointments, services, and availability.
-   - Role and access management for staff.
+   - Manage staff roles and permissions.
 
-This API provides a comprehensive backend structure to facilitate smooth and scalable operations for salons.
+
 
 ## Authentication
 All routes require authentication (`Authenticate` middleware). Ensure the client includes valid authentication headers.
