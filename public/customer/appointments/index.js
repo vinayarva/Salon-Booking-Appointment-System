@@ -97,9 +97,9 @@ function displayCurrent(data){
                 <h5>${element.services}</h5>
             </div
             <div class="d-flex flex-column flex-md-row">
-             <button type="button" class="btn btn-success" data-bs-toggle="modal" id="Reschedule" value="${element.ID}" data-bs-target="#exampleModal">
+           <!--  <button type="button" class="btn btn-success" data-bs-toggle="modal" id="Reschedule" value="${element.ID}" data-bs-target="#exampleModal">
                                                         Reschedule
-            </button>
+            </button> -->
                 <button class="btn btn-danger cancel_btn" id="${element.ID}">Cancel</button>
             </div>
         </div>

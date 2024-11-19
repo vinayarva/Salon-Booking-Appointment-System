@@ -138,7 +138,7 @@ module.exports.FetchUserBooking = async (req, res) => {
     const current = await BookAppointment.findAll({
       where: {
         date: {
-          [Op.gte]: Todaydate, // This ensures dates greater than or equal to Todaydate
+          [Op.gt]: Todaydate, // This ensures dates greater than or equal to Todaydate
         },
         userID: ID, // Replace `ID` with the appropriate user ID variable
       },
@@ -149,7 +149,7 @@ module.exports.FetchUserBooking = async (req, res) => {
     const past = await BookAppointment.findAll({
       where: {
         date: {
-          [Op.lt]: Todaydate, // This ensures dates greater than or equal to Todaydate
+          [Op.lte]: Todaydate, // This ensures dates greater than or equal to Todaydate
         },
         userID: ID, // Replace `ID` with the appropriate user ID variable
       },
