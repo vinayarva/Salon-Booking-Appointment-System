@@ -1,4 +1,33 @@
-# Salon Appointment Booking System API Documentation
+# Salon Appointment Booking System - API Documentation
+
+## Summary
+The **Salon Appointment Booking System** is designed to streamline the management of salon services, appointments, staff, and availability. The system includes features for customers, staff, and administrators to handle bookings, manage availability, track service offerings, and process payments efficiently. This API enables seamless integration with front-end applications or third-party tools to enhance the user experience for salon operations.
+
+### Key Features:
+1. **User Management:**
+   - Securely manage users with authentication and role-based access.
+   - Support for admin, staff, and customer roles.
+
+2. **Service Management:**
+   - CRUD operations for salon services.
+   - Dynamic service pricing and descriptions.
+
+3. **Appointment Booking:**
+   - Allow customers to book appointments.
+   - Admins and staff can view and update appointment statuses.
+
+4. **Availability Management:**
+   - Real-time availability updates.
+   - Automated time-slot management to prevent overbooking.
+
+5. **Payment Integration:**
+   - Premium services purchase and payment verification.
+
+6. **Admin Dashboard:**
+   - Overview of all appointments, services, and availability.
+   - Role and access management for staff.
+
+This API provides a comprehensive backend structure to facilitate smooth and scalable operations for salons.
 
 ## Authentication
 All routes require authentication (`Authenticate` middleware). Ensure the client includes valid authentication headers.
