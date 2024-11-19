@@ -227,10 +227,10 @@ All routes require authentication (`Authenticate` middleware). Ensure the client
 | Attribute      | Type              | Details              |
 |----------------|-------------------|----------------------|
 | `ID`           | `INTEGER`         | Primary Key, Auto-Increment |
-| `userName`     | `STRING`          | Not Null            |
-| `email`        | `STRING`          | Not Null, Unique    |
-| `password`     | `STRING`          | Not Null            |
-| `phoneNumber`  | `STRING`          | Not Null            |
+| `userName`     | `STRING`          |                     |
+| `email`        | `STRING`          |        Unique       |
+| `password`     | `STRING`          |                     |
+| `phoneNumber`  | `STRING`          |                     |
 
 ---
 
@@ -263,7 +263,7 @@ All routes require authentication (`Authenticate` middleware). Ensure the client
 | Attribute      | Type              | Details              |
 |----------------|-------------------|----------------------|
 | `ID`           | `INTEGER`         | Primary Key, Auto-Increment |
-| `date`         | `DATEONLY`        | Not Null            |
+| `date`         | `DATEONLY`        |           
 | `availability` | `JSON`            | Default: Time slots |
 
 ---
@@ -272,9 +272,9 @@ All routes require authentication (`Authenticate` middleware). Ensure the client
 | Attribute      | Type              | Details              |
 |----------------|-------------------|----------------------|
 | `ID`           | `INTEGER`         | Primary Key, Auto-Increment |
-| `date`         | `DATEONLY`        | Not Null            |
-| `time`         | `TIME`            | Not Null            |
-| `services`     | `STRING`          | Not Null            |
+| `date`         | `DATEONLY`        |            
+| `time`         | `TIME`            |            
+| `services`     | `STRING`          |            
 | `status`       | `ENUM`            | Default: `confirmed`|
 
 ---
