@@ -1,6 +1,5 @@
 # Salon Appointment Booking System - API Documentation
 
-## Summary
 The **Salon Appointment Booking System** is designed to streamline the management of salon services, appointments, staff, and availability. The system includes features for customers, staff, and administrators to handle bookings, manage availability, track service offerings, and process payments efficiently. This API enables seamless integration with front-end applications or third-party tools to enhance the user experience for salon operations.
 
 ### Key Features:
