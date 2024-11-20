@@ -2,18 +2,15 @@ const hiddenEmployeeName = document.getElementById("hiddenEmployeeName");
 
 // Handle form submission
 
-
-document.getElementById("signout").addEventListener("click",()=>{
-    window.location.href = "../login/login.html"
-})
+document.getElementById("signout").addEventListener("click", () => {
+  window.location.href = "../login/login.html";
+});
 
 // Get the date and select elements
 const dateInput = document.getElementById("date");
 
 // Get today's date
 const today = new Date();
-
-
 
 // const formattedDate = today.toISOString().split("T")[0]; // Formats as 'YYYY-MM-DD'
 // Set the value of the date input to today's date
@@ -28,7 +25,7 @@ const oneWeekLater = new Date();
 oneWeekLater.setDate(today.getDate() + 7);
 const final = oneWeekLater.toISOString().split("T")[0];
 
-dateInput.max = final
+dateInput.max = final;
 const serviceInput = document.getElementById("service");
 
 // Common event handler function
@@ -39,7 +36,7 @@ async function handleInputChange() {
     console.log("Date:", date, "Service:", service);
 
     const result = await axios.get(
-      "http://localhost:4000/api/fetchAvailability",
+      "http://16.170.244.158/api/fetchAvailability",
       {
         params: {
           date: date,
@@ -50,11 +47,10 @@ async function handleInputChange() {
         },
       }
     );
-    
 
     hiddenEmployeeName.value = result.data.adminID;
 
-    console.log(hiddenEmployeeName.value)
+    console.log(hiddenEmployeeName.value);
     console.log(result);
     displayTimeSlots(result.data.availability);
   } catch (error) {
@@ -120,9 +116,6 @@ function convertTo12HourFormat(time24) {
   return `${hours}:${minutes} ${period}`;
 }
 
-
-
-
 function getAuthHeaders() {
   return {
     headers: {
@@ -131,10 +124,9 @@ function getAuthHeaders() {
   };
 }
 
-
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    updateService()
+    updateService();
   } catch (error) {
     console.error("Error fetching services:", error);
     alert("Failed to load services. Please try again later.");
@@ -161,50 +153,40 @@ function displayCard(data) {
       </div>
     `;
     cards_slots.appendChild(div);
-  })
+  });
 
-  const Select = document.getElementById("service")
+  const Select = document.getElementById("service");
 
   data.forEach((element) => {
     const option = document.createElement("option");
-    option.value = element.serviceName
-    option.innerText = element.serviceName
-    option.setAttribute('data-price', element.price);
+    option.value = element.serviceName;
+    option.innerText = element.serviceName;
+    option.setAttribute("data-price", element.price);
 
-    Select.appendChild(option)
-  })
-
-  Select.addEventListener('change', function() {
-    const selectedOption = Select.options[Select.selectedIndex]; // Get the selected option
-    const price = selectedOption.getAttribute('data-price'); // Retrieve the price
-    const price_text = document.getElementById("price-text")
-    price_text.innerText = "Price: " + price 
-    document.getElementById("hiddenprice").value = price
-    console.log(price); // Display the price in the console (or use it as needed)
+    Select.appendChild(option);
   });
 
-
+  Select.addEventListener("change", function () {
+    const selectedOption = Select.options[Select.selectedIndex]; // Get the selected option
+    const price = selectedOption.getAttribute("data-price"); // Retrieve the price
+    const price_text = document.getElementById("price-text");
+    price_text.innerText = "Price: " + price;
+    document.getElementById("hiddenprice").value = price;
+    console.log(price); // Display the price in the console (or use it as needed)
+  });
 }
 
-
-
-
-
-function updateService(){
-
-  axios.get("http://localhost:4000/api/getService", getAuthHeaders()).then((result)=>{
-    console.log(result)
-    displayCard(result.data.content);
-
-  }).catch((err)=>{console.log(err)});
-
-
+function updateService() {
+  axios
+    .get("http://16.170.244.158/api/getService", getAuthHeaders())
+    .then((result) => {
+      console.log(result);
+      displayCard(result.data.content);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
-
-
-
-
-
 
 document.getElementById("purchase").addEventListener("click", async (e) => {
   try {
@@ -213,11 +195,14 @@ document.getElementById("purchase").addEventListener("click", async (e) => {
     // Get the price from the hidden input field
     const price = document.getElementById("hiddenprice").value; // Get the price value
     const formattedPrice = price * 100; // Razorpay expects the amount in paise (1 INR = 100 paise)
-    console.log(formattedPrice)
+    console.log(formattedPrice);
     // Open the payment gateway first
-    const response = await axios.get(`http://localhost:4000/api/service/premium?price=${formattedPrice}`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    const response = await axios.get(
+      `http://16.170.244.158/api/service/premium?price=${formattedPrice}`,
+      {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
     const order_id = response.data.id;
 
     const options = {
@@ -232,17 +217,17 @@ document.getElementById("purchase").addEventListener("click", async (e) => {
           // Handle the payment success response here
           // Send the payment details back to the server for verification
           const result = await axios.post(
-            "http://localhost:4000/api/service/verify",
+            "http://16.170.244.158/api/service/verify",
             paymentResponse,
             {
-              headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+              },
             }
           );
 
-
           // After successful payment, submit the booking form
           submitBooking(paymentResponse); // Call the submitBooking function after payment success
-
         } catch (error) {
           console.log("Payment verification failed:", error);
         }
@@ -259,7 +244,6 @@ document.getElementById("purchase").addEventListener("click", async (e) => {
 
     const paymentWindow = new Razorpay(options);
     paymentWindow.open();
-
   } catch (error) {
     console.log("Error opening payment gateway:", error);
   }
@@ -281,11 +265,12 @@ function submitBooking(paymentResponse) {
   console.log(booking);
 
   // Send the booking data (including payment details) to your server
-  axios.post("http://localhost:4000/api/booking", booking, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`, // Add the token for authentication
-    },
-  })
+  axios
+    .post("http://16.170.244.158/api/booking", booking, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Add the token for authentication
+      },
+    })
     .then((result) => {
       alert(result.data.message); // Show success message
       window.location.href = "../appointments/appointments.html"; // Redirect after successful booking

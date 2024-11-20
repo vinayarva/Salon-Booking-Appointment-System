@@ -7,19 +7,19 @@ function getAuthHeaders() {
   };
 }
 
-document.getElementById("signout").addEventListener("click",()=>{
-  window.location.href = "../login/login.html"
-})
+document.getElementById("signout").addEventListener("click", () => {
+  window.location.href = "../login/login.html";
+});
 
-document.getElementById("add_btn").addEventListener("click",()=>{
-        document.getElementById("ServiceName").value = "";
-        document.getElementById("ServiceDescription").value = "";
-        document.getElementById("price").value = "";
-        document.getElementById("hidden").value = "undefined";
-})
+document.getElementById("add_btn").addEventListener("click", () => {
+  document.getElementById("ServiceName").value = "";
+  document.getElementById("ServiceDescription").value = "";
+  document.getElementById("price").value = "";
+  document.getElementById("hidden").value = "undefined";
+});
 
 function handleSubmit(event) {
-  event.preventDefault()
+  event.preventDefault();
 
   const service = {
     serviceName: event.target.ServiceName.value,
@@ -29,13 +29,13 @@ function handleSubmit(event) {
 
   const hidden = document.getElementById("hidden");
 
-
   if (hidden.value === "undefined") {
-    axios.post("http://localhost:4000/api/addService", service, getAuthHeaders())
+    axios
+      .post("http://16.170.244.158/api/addService", service, getAuthHeaders())
       .then((result) => {
         console.log(result);
         alert("Service added successfully!");
-        updateService()
+        updateService();
       })
       .catch((err) => {
         console.error("Error adding service:", err);
@@ -43,12 +43,17 @@ function handleSubmit(event) {
       });
   } else {
     const ID = hidden.value;
-    axios.put(`http://localhost:4000/api/updateService/${ID}`, service, getAuthHeaders())
+    axios
+      .put(
+        `http://16.170.244.158/api/updateService/${ID}`,
+        service,
+        getAuthHeaders()
+      )
       .then((result) => {
         console.log(result);
         hidden.value = "undefined";
         alert("Service updated successfully!");
-        updateService()
+        updateService();
       })
       .catch((err) => {
         console.error("Error updating service:", err);
@@ -64,7 +69,7 @@ function handleSubmit(event) {
 // Fetch services on DOM content load
 document.addEventListener("DOMContentLoaded", async () => {
   try {
-    updateService()
+    updateService();
   } catch (error) {
     console.error("Error fetching services:", error);
     alert("Failed to load services. Please try again later.");
@@ -98,15 +103,19 @@ function displayCard(data) {
     cards_slots.appendChild(div);
   });
 
-  document.querySelectorAll('.edit_btn').forEach((button) => {
-    button.addEventListener('click', async (event) => {
+  document.querySelectorAll(".edit_btn").forEach((button) => {
+    button.addEventListener("click", async (event) => {
       const id = event.target.id;
       try {
-        const result = await axios.get(`http://localhost:4000/api/getService/${id}`, getAuthHeaders());
+        const result = await axios.get(
+          `http://16.170.244.158/api/getService/${id}`,
+          getAuthHeaders()
+        );
         const data = result.data.content;
 
         document.getElementById("ServiceName").value = data.serviceName;
-        document.getElementById("ServiceDescription").value = data.serviceDescription;
+        document.getElementById("ServiceDescription").value =
+          data.serviceDescription;
         document.getElementById("price").value = data.price;
         document.getElementById("hidden").value = data.ID;
       } catch (err) {
@@ -116,16 +125,18 @@ function displayCard(data) {
     });
   });
 
-  
-  document.querySelectorAll('.delete_btn').forEach((button) => {
-    button.addEventListener('click', async (event) => {
+  document.querySelectorAll(".delete_btn").forEach((button) => {
+    button.addEventListener("click", async (event) => {
       const id = event.target.id;
       if (confirm("Are you sure you want to delete this service?")) {
         try {
-          await axios.delete(`http://localhost:4000/api/deleteService/${id}`, getAuthHeaders());
+          await axios.delete(
+            `http://16.170.244.158/api/deleteService/${id}`,
+            getAuthHeaders()
+          );
           alert("Service deleted successfully!");
           // Optionally, reload or refresh the displayed services
-           updateService()
+          updateService();
         } catch (err) {
           console.error("Error deleting service:", err);
           alert("Failed to delete service. Please try again.");
@@ -135,15 +146,13 @@ function displayCard(data) {
   });
 }
 
-
-
-function updateService(){
-
-  axios.get("http://localhost:4000/api/getService", getAuthHeaders()).then((result)=>{
-
-    displayCard(result.data.content);
-
-  }).catch((err)=>{console.log(err)});
-
-
+function updateService() {
+  axios
+    .get("http://16.170.244.158/api/getService", getAuthHeaders())
+    .then((result) => {
+      displayCard(result.data.content);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }

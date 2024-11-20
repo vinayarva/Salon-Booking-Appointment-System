@@ -10,28 +10,26 @@ function submitBooking(event) {
     date: event.target.date.value,
     services: event.target.service.value,
     time: timeSlot.value,
-    employeeRoleID: hiddenEmployeeName.value
+    employeeRoleID: hiddenEmployeeName.value,
   };
 
   console.log(booking);
 
-  axios.post("http://localhost:4000/api/booking", booking, {headers: {
-    Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace `token` with your actual token variable
+  axios
+    .post("http://16.170.244.158/api/booking", booking, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Replace `token` with your actual token variable
+      },
+    })
+    .then((result) => {
+      console.log(result);
+      event.target.reset();
 
-  }}).then((result) => {
-   
-      console.log(result)
-      event.target.reset(); 
-      
-
-      dateInput.value = formattedDate
-
-
-  }).catch((err) => {
-      console.log(err)
-  });
-
-
+      dateInput.value = formattedDate;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 // Get the date and select elements
@@ -53,7 +51,7 @@ async function handleInputChange() {
     console.log("Date:", date, "Service:", service);
 
     const result = await axios.get(
-      "http://localhost:4000/api/fetchAvailability",
+      "http://16.170.244.158/api/fetchAvailability",
       {
         params: {
           date: date,
@@ -64,11 +62,10 @@ async function handleInputChange() {
         },
       }
     );
-    
 
     hiddenEmployeeName.value = result.data.employeeRoleID;
 
-    console.log(hiddenEmployeeName.value)
+    console.log(hiddenEmployeeName.value);
     console.log(result);
     displayTimeSlots(result.data.availability);
   } catch (error) {
@@ -113,4 +110,3 @@ function displayTimeSlots(timeAvailability) {
     container.appendChild(document.createElement("br"));
   }
 }
-

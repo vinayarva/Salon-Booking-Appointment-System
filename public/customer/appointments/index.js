@@ -1,84 +1,69 @@
 // const { compareSync } = require("bcrypt");
-const rescheduleDate =  document.getElementById("rescheduleDate");
+const rescheduleDate = document.getElementById("rescheduleDate");
 
 const today = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-const RescheduleButton =  document.getElementById("rescheduleButton");
+const RescheduleButton = document.getElementById("rescheduleButton");
 
 const tomorrow = new Date();
 tomorrow.setDate(tomorrow.getDate() + 1);
 const formattedDate = tomorrow.toISOString().split("T")[0];
 
-rescheduleDate.min = formattedDate
+rescheduleDate.min = formattedDate;
 
-let serviceReschedule ;
-let rowID ;
+let serviceReschedule;
+let rowID;
 
-rescheduleDate.addEventListener("change",(event)=>{
-
-  const date = rescheduleDate.value
+rescheduleDate.addEventListener("change", (event) => {
+  const date = rescheduleDate.value;
   // const service =  RescheduleButton.getAttribute('value')
 
-
   // const rescheduleButton = document.getElementById('Reschedule');
- const service = serviceReschedule
+  const service = serviceReschedule;
   // console.log(service);
-  handleInputChange(date,service)
+  handleInputChange(date, service);
+});
 
-
-
-})
-
-
-
-
-
-RescheduleButton.addEventListener("click",(event)=>{
-
-
+RescheduleButton.addEventListener("click", (event) => {
   const timeSlot = document.querySelector('input[name="group"]:checked');
   const data = {
-    date : rescheduleDate.value,
+    date: rescheduleDate.value,
     time: timeSlot ? timeSlot.value : "",
-  }
-  console.log(data)
-  axios.put(`http://localhost:4000/api/updateBooking/${rowID}`, data, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`, // Add the token for authentication
-    },
-  })
+  };
+  console.log(data);
+  axios
+    .put(`http://16.170.244.158/api/updateBooking/${rowID}`, data, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // Add the token for authentication
+      },
+    })
     .then((result) => {
       alert(result.data.message); // Show success message
-      const modal = bootstrap.Modal.getInstance(document.getElementById('exampleModal')); // Replace with your modal's ID
+      const modal = bootstrap.Modal.getInstance(
+        document.getElementById("exampleModal")
+      ); // Replace with your modal's ID
       modal.hide(); // Close the modal
       updater(); // Refresh the booking list
-
     })
     .catch((err) => {
       console.log("Reschedule failed:", err); // Handle any booking errors
     });
-})
-
-
-
+});
 
 document.addEventListener("click", (event) => {
   if (event.target.classList.contains("Reschedule_btn")) {
     serviceReschedule = event.target.getAttribute("service");
-     rowID = event.target.id;
-    
+    rowID = event.target.id;
   }
 });
 
-
-
-async function handleInputChange(date,service) {
+async function handleInputChange(date, service) {
   try {
     // const date = dateInput.value;
     // const service = serviceInput.value;
     console.log("Date:", date, "Service:", service);
 
     const result = await axios.get(
-      "http://localhost:4000/api/fetchAvailability",
+      "http://16.170.244.158/api/fetchAvailability",
       {
         params: {
           date: date,
@@ -89,7 +74,6 @@ async function handleInputChange(date,service) {
         },
       }
     );
-    
 
     // hiddenEmployeeName.value = result.data.adminID;
 
@@ -100,8 +84,6 @@ async function handleInputChange(date,service) {
     console.log(error);
   }
 }
-
-
 
 function displayTimeSlots(timeAvailability) {
   const container = document.getElementById("time-slots");
@@ -156,19 +138,9 @@ function convertTo12HourFormat(time24) {
   return `${hours}:${minutes} ${period}`;
 }
 
-
-
-
-
-
-
-
-
-
-
 document.addEventListener("DOMContentLoaded", async (event) => {
   try {
-    const result = await axios.get("http://localhost:4000/api/fetchBookings", {
+    const result = await axios.get("http://16.170.244.158/api/fetchBookings", {
       params: {
         date: today,
       },
@@ -194,7 +166,7 @@ document.addEventListener("DOMContentLoaded", async (event) => {
 
 async function updater() {
   try {
-    const result = await axios.get("http://localhost:4000/api/fetchBookings", {
+    const result = await axios.get("http://16.170.244.158/api/fetchBookings", {
       params: {
         date: today,
       },
@@ -242,7 +214,9 @@ function displayCurrent(data) {
                 <h5>${element.services}</h5>
             </div
             <div class="d-flex flex-column flex-md-row">
-           <button type="button" class="btn btn-success Reschedule_btn" data-bs-toggle="modal" id="${element.ID}" service="${element.services}" data-bs-target="#exampleModal">
+           <button type="button" class="btn btn-success Reschedule_btn" data-bs-toggle="modal" id="${
+             element.ID
+           }" service="${element.services}" data-bs-target="#exampleModal">
     Reschedule
 </button>
                 <button class="btn btn-danger cancel_btn" id="${
@@ -260,7 +234,7 @@ function displayCurrent(data) {
     button.addEventListener("click", (event) => {
       axios
         .put(
-          `http://localhost:4000/api/admin/appointmentStatus/${event.target.id}`,
+          `http://16.170.244.158/api/admin/appointmentStatus/${event.target.id}`,
           {
             params: { status: "cancelled" },
             headers: {
