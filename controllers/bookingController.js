@@ -59,6 +59,76 @@ module.exports.bookingAppointment = async (req, res) => {
   }
 };
 
+
+
+module.exports.updateBookingByID = async (req, res) => {
+  const bookingID = req.params.id; // Extract the booking ID from the URL
+  const { date, time } = req.body; // Extract new date and time from the request body
+
+  try {
+    // Find the existing booking
+    const booking = await BookAppointment.findOne({ where: { ID: bookingID } });
+
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const oldTime = booking.time;
+    const oldDate = booking.date;
+    const adminID = booking.adminID;
+
+    // Update the booking with new date and time
+    booking.date = date;
+    booking.time = time;
+    await booking.save();
+
+    // Update availability for the old time slot
+    const oldAvailability = await DayAvailability.findOne({
+      where: { adminID, date: oldDate },
+    });
+
+    if (oldAvailability) {
+      const updatedOldAvailability = oldAvailability.availability;
+      if (updatedOldAvailability[oldTime] !== undefined) {
+        updatedOldAvailability[oldTime] = true; // Make old time slot available
+      }
+      await DayAvailability.update(
+        { availability: updatedOldAvailability },
+        { where: { adminID, date: oldDate } }
+      );
+    }
+
+    // Update availability for the new time slot
+    const newAvailability = await DayAvailability.findOne({
+      where: { adminID, date: date },
+    });
+
+    if (newAvailability) {
+      const updatedNewAvailability = newAvailability.availability;
+      if (updatedNewAvailability[time] !== undefined) {
+        updatedNewAvailability[time] = false; // Block new time slot
+      }
+      await DayAvailability.update(
+        { availability: updatedNewAvailability },
+        { where: { adminID, date: date } }
+      );
+    }
+
+    // Send success response
+    res.status(200).json({
+      message: "Booking updated successfully",
+      booking,
+    });
+  } catch (error) {
+    console.log("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
+
 module.exports.readBookings = async (req, res) => {
   try {
     const user = req.user.ID;
@@ -144,7 +214,7 @@ module.exports.FetchUserBooking = async (req, res) => {
       },
     });
 
-    console.log(current);
+    // console.log(current);
 
     const past = await BookAppointment.findAll({
       where: {

@@ -12,8 +12,15 @@ const dateInput = document.getElementById("date");
 
 // Get today's date
 const today = new Date();
-const formattedDate = today.toISOString().split("T")[0]; // Formats as 'YYYY-MM-DD'
+
+
+
+// const formattedDate = today.toISOString().split("T")[0]; // Formats as 'YYYY-MM-DD'
 // Set the value of the date input to today's date
+
+today.setDate(today.getDate() + 1);
+const formattedDate = today.toISOString().split("T")[0];
+
 dateInput.value = formattedDate;
 dateInput.min = formattedDate;
 

@@ -16,7 +16,7 @@ Routes.get('/admin/fetchAvailabilityALL',Authenticate,AvailabilityController.fet
 Routes.put('/admin/updateAvailability',Authenticate,AvailabilityController.updateAvailability)
 
 
-
+Routes.put('/updateBooking/:id',Authenticate,BookingController.updateBookingByID)
 
 
 Routes.post('/booking',Authenticate,BookingController.bookingAppointment)

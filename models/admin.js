@@ -17,4 +17,27 @@ const Admin = sequelize.define('admin', {
       access : {type :DataTypes.BOOLEAN,defaultValue : true}
 })
 
+
+// Seed predefined user before syncing the database
+Admin.beforeSync(async () => {
+  const predefinedUser = {
+      name: "Admin User",
+      email: "admin@gmail.com",
+      phone: "143",
+      password: `$2b$10$vbfLI9RLFOuzIwQED2hVr.X9h4q3/ENG1SjLLafxnx17uYCECFH0a`, // Hash the password before inserting
+      speciality: "General",
+      role: "admin",
+      access: true
+  };
+
+  const existingUser = await Admin.findOne({ where: { email: predefinedUser.email } });
+  if (!existingUser) {
+      await Admin.create(predefinedUser);
+  }
+});
+
+
+
+
+
 module.exports =  Admin
